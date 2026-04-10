@@ -1,19 +1,25 @@
 import { useState } from "react";
-import { Menu, X, Search, MessageCircle, Store, User } from "lucide-react";
+import { Menu, X, Search, MessageCircle, Store, User, LogOut, LogIn } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "@/contexts/AuthContext";
 import logo from "@/assets/logo.png";
-
-const navItems = [
-  { to: "/", label: "Accueil", icon: Store },
-  { to: "/marketplace", label: "Marketplace", icon: Search },
-  { to: "/messages", label: "Messages", icon: MessageCircle },
-  { to: "/dashboard", label: "Ma Boutique", icon: User },
-];
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
   const location = useLocation();
+  const { user, signOut } = useAuth();
+
+  const navItems = [
+    { to: "/", label: "Accueil", icon: Store },
+    { to: "/marketplace", label: "Marketplace", icon: Search },
+    ...(user
+      ? [
+          { to: "/messages", label: "Messages", icon: MessageCircle },
+          { to: "/dashboard", label: "Ma Boutique", icon: User },
+        ]
+      : []),
+  ];
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-card/80 backdrop-blur-xl border-b border-border">
@@ -23,7 +29,6 @@ const Navbar = () => {
           <span className="font-heading font-bold text-xl text-gradient">Kassouata</span>
         </Link>
 
-        {/* Desktop nav */}
         <div className="hidden md:flex items-center gap-1">
           {navItems.map((item) => (
             <Link
@@ -39,18 +44,30 @@ const Navbar = () => {
               {item.label}
             </Link>
           ))}
+          {user ? (
+            <button
+              onClick={signOut}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            >
+              <LogOut className="w-4 h-4" />
+              Déconnexion
+            </button>
+          ) : (
+            <Link
+              to="/auth"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium gradient-primary text-primary-foreground"
+            >
+              <LogIn className="w-4 h-4" />
+              Connexion
+            </Link>
+          )}
         </div>
 
-        {/* Mobile toggle */}
-        <button
-          onClick={() => setOpen(!open)}
-          className="md:hidden p-2 rounded-lg hover:bg-muted"
-        >
+        <button onClick={() => setOpen(!open)} className="md:hidden p-2 rounded-lg hover:bg-muted">
           {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>
       </div>
 
-      {/* Mobile menu */}
       <AnimatePresence>
         {open && (
           <motion.div
@@ -75,6 +92,24 @@ const Navbar = () => {
                   {item.label}
                 </Link>
               ))}
+              {user ? (
+                <button
+                  onClick={() => { signOut(); setOpen(false); }}
+                  className="flex items-center gap-3 px-4 py-3 rounded-lg font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                >
+                  <LogOut className="w-5 h-5" />
+                  Déconnexion
+                </button>
+              ) : (
+                <Link
+                  to="/auth"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-3 px-4 py-3 rounded-lg font-medium gradient-primary text-primary-foreground"
+                >
+                  <LogIn className="w-5 h-5" />
+                  Connexion
+                </Link>
+              )}
             </div>
           </motion.div>
         )}
