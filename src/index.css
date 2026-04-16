@@ -108,3 +108,40 @@
     -webkit-text-fill-color: transparent;
   }
 }
+
+/* Quill rich text editor theming */
+.rich-editor .ql-toolbar {
+  background: hsl(var(--muted));
+  border: none !important;
+  border-bottom: 1px solid hsl(var(--border)) !important;
+}
+.rich-editor .ql-container {
+  border: none !important;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  min-height: 140px;
+  color: hsl(var(--foreground));
+}
+.rich-editor .ql-editor {
+  min-height: 140px;
+}
+.rich-editor .ql-editor.ql-blank::before {
+  color: hsl(var(--muted-foreground));
+  font-style: normal;
+}
+.rich-editor .ql-stroke { stroke: hsl(var(--foreground)); }
+.rich-editor .ql-fill { fill: hsl(var(--foreground)); }
+.rich-editor .ql-picker-label { color: hsl(var(--foreground)); }
+.rich-editor .ql-picker-options {
+  background: hsl(var(--card));
+  color: hsl(var(--foreground));
+  border-color: hsl(var(--border)) !important;
+}
+
+/* Render rich-text content properly */
+.rich-content { line-height: 1.6; }
+.rich-content p { margin: 0 0 0.5rem; }
+.rich-content .ql-align-center { text-align: center; }
+.rich-content .ql-align-right { text-align: right; }
+.rich-content .ql-align-justify { text-align: justify; }
+.rich-content s { text-decoration: line-through; }

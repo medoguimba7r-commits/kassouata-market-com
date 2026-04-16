@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { SettingsProvider } from "@/contexts/SettingsContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Marketplace from "./pages/Marketplace";
@@ -12,6 +13,7 @@ import Dashboard from "./pages/Dashboard";
 import Auth from "./pages/Auth";
 import CreateShop from "./pages/CreateShop";
 import CreateProduct from "./pages/CreateProduct";
+import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,6 +24,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <SettingsProvider>
         <AuthProvider>
           <Routes>
             <Route path="/" element={<Index />} />
@@ -60,9 +63,11 @@ const App = () => (
                 </ProtectedRoute>
               }
             />
+            <Route path="/settings" element={<Settings />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
+        </SettingsProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
