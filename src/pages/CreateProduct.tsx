@@ -5,6 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Camera, X, ImagePlus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/Navbar";
+import RichTextEditor from "@/components/RichTextEditor";
 import { useQuery } from "@tanstack/react-query";
 
 const CreateProduct = () => {
@@ -165,14 +166,14 @@ const CreateProduct = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-foreground mb-1.5">Description</label>
-                <textarea
+                <RichTextEditor
                   value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Décrivez votre produit..."
-                  rows={4}
-                  maxLength={2000}
-                  className="w-full px-4 py-3 rounded-xl bg-background border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring resize-none"
+                  onChange={setDescription}
+                  placeholder="Décrivez votre produit (couleur, police, gras, italique, barré, alignement...)"
                 />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Mettez en forme votre texte : couleurs, polices, gras, italique, barré, alignement.
+                </p>
               </div>
               <div>
                 <label className="block text-sm font-medium text-foreground mb-1.5">Prix (FCFA) — optionnel</label>
