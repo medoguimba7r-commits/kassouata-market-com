@@ -64,7 +64,7 @@ const Dashboard = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["my-products"] });
-      toast({ title: "Produit supprimé" });
+      toast({ title: t("productDeleted") });
     },
   });
 
@@ -81,10 +81,10 @@ const Dashboard = () => {
   const totalViews = products.reduce((sum, p) => sum + (p.views_count || 0), 0);
 
   const stats = [
-    { icon: Package, label: "Produits", value: String(products.length) },
-    { icon: Eye, label: "Vues", value: String(totalViews) },
-    { icon: MessageCircle, label: "Messages", value: String(unreadCount) },
-    { icon: TrendingUp, label: "Publiés", value: String(products.filter((p) => p.is_published).length) },
+    { icon: Package, label: t("statProducts"), value: String(products.length) },
+    { icon: Eye, label: t("views"), value: String(totalViews) },
+    { icon: MessageCircle, label: t("messages"), value: String(unreadCount) },
+    { icon: TrendingUp, label: t("published"), value: String(products.filter((p) => p.is_published).length) },
   ];
 
   if (shopLoading) {
@@ -107,15 +107,13 @@ const Dashboard = () => {
             <div className="w-16 h-16 rounded-full gradient-primary flex items-center justify-center mx-auto mb-4">
               <Package className="w-8 h-8 text-primary-foreground" />
             </div>
-            <h1 className="font-heading font-bold text-3xl text-foreground mb-2">Créez votre boutique</h1>
-            <p className="text-muted-foreground mb-6">
-              Pour publier des produits, vous devez d'abord créer votre boutique.
-            </p>
+            <h1 className="font-heading font-bold text-3xl text-foreground mb-2">{t("createYourShop")}</h1>
+            <p className="text-muted-foreground mb-6">{t("toPublishNeedShop")}</p>
             <button
               onClick={() => navigate("/create-shop")}
               className="gradient-primary px-6 py-3 rounded-xl font-heading font-semibold text-primary-foreground hover:opacity-90 transition-opacity"
             >
-              Créer ma boutique
+              {t("createMyShop")}
             </button>
           </div>
         </main>
@@ -131,14 +129,14 @@ const Dashboard = () => {
           <div className="flex items-center justify-between mb-8">
             <div>
               <h1 className="font-heading font-bold text-3xl text-foreground">{shop.name}</h1>
-              <p className="text-muted-foreground mt-1">{shop.description || "Gérez vos produits et ventes"}</p>
+              <p className="text-muted-foreground mt-1">{shop.description || t("manageShop")}</p>
             </div>
             <button
               onClick={() => navigate("/create-product")}
               className="gradient-primary px-5 py-2.5 rounded-xl font-heading font-semibold text-sm text-primary-foreground flex items-center gap-2 hover:opacity-90 transition-opacity"
             >
               <Plus className="w-4 h-4" />
-              Ajouter
+              {t("add")}
             </button>
           </div>
 
@@ -158,16 +156,14 @@ const Dashboard = () => {
                 <Package className="w-8 h-8 text-muted-foreground" />
               </div>
               <h2 className="font-heading font-semibold text-xl text-card-foreground mb-2">
-                Aucun produit publié
+                {t("noPublishedProduct")}
               </h2>
-              <p className="text-muted-foreground mb-6">
-                Commencez à vendre en ajoutant votre premier produit.
-              </p>
+              <p className="text-muted-foreground mb-6">{t("startSelling")}</p>
               <button
                 onClick={() => navigate("/create-product")}
                 className="gradient-primary px-6 py-3 rounded-xl font-heading font-semibold text-primary-foreground hover:opacity-90 transition-opacity"
               >
-                Publier mon premier produit
+                {t("publishFirstProduct")}
               </button>
             </div>
           ) : (
@@ -186,15 +182,15 @@ const Dashboard = () => {
                   <div className="flex-1 min-w-0">
                     <h3 className="font-heading font-semibold text-card-foreground truncate">{product.name}</h3>
                     <p className="text-sm text-muted-foreground">
-                      {product.price ? `${product.price.toLocaleString()} FCFA` : "Prix non défini"}
-                      {!product.is_published && " • Non publié"}
+                      {product.price ? `${product.price.toLocaleString()} FCFA` : t("priceUndefined")}
+                      {!product.is_published && ` • ${t("notPublished")}`}
                     </p>
                   </div>
                   <div className="flex items-center gap-1">
                     <button
                       onClick={() => togglePublishMutation.mutate({ id: product.id, published: !product.is_published })}
                       className="p-2 rounded-lg hover:bg-muted transition-colors"
-                      title={product.is_published ? "Masquer" : "Publier"}
+                      title={product.is_published ? t("hide") : t("publish")}
                     >
                       {product.is_published ? (
                         <ToggleRight className="w-5 h-5 text-secondary" />
@@ -205,7 +201,7 @@ const Dashboard = () => {
                     <button
                       onClick={() => deleteMutation.mutate(product.id)}
                       className="p-2 rounded-lg hover:bg-destructive/10 text-destructive transition-colors"
-                      title="Supprimer"
+                      title={t("delete")}
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
