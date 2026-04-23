@@ -86,6 +86,7 @@ export type Database = {
       }
       products: {
         Row: {
+          category: string | null
           contact_phone: string | null
           contact_whatsapp: string | null
           created_at: string
@@ -101,6 +102,7 @@ export type Database = {
           views_count: number
         }
         Insert: {
+          category?: string | null
           contact_phone?: string | null
           contact_whatsapp?: string | null
           created_at?: string
@@ -116,6 +118,7 @@ export type Database = {
           views_count?: number
         }
         Update: {
+          category?: string | null
           contact_phone?: string | null
           contact_whatsapp?: string | null
           created_at?: string
