@@ -62,7 +62,7 @@ const ProductCard = ({ id, image, name, price, seller, sellerId, contactWhatsapp
         navigate("/messages");
       }
     } catch {
-      toast({ title: "Erreur", variant: "destructive" });
+      toast({ title: t("error"), variant: "destructive" });
     }
   };
 
@@ -100,7 +100,7 @@ const ProductCard = ({ id, image, name, price, seller, sellerId, contactWhatsapp
             className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity"
           >
             <MessageCircle className="w-3.5 h-3.5" />
-            Contacter
+            {t("contact")}
           </button>
         </div>
       </div>

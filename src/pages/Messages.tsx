@@ -1,12 +1,14 @@
 import Navbar from "@/components/Navbar";
 import { MessageCircle, Send } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSettings } from "@/contexts/SettingsContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect, useRef } from "react";
 
 const Messages = () => {
   const { user } = useAuth();
+  const { t, language } = useSettings();
   const queryClient = useQueryClient();
   const [selectedConvo, setSelectedConvo] = useState<string | null>(null);
   const [newMessage, setNewMessage] = useState("");
