@@ -1,6 +1,7 @@
 import { MessageCircle, Store, Heart } from "lucide-react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSettings } from "@/contexts/SettingsContext";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -18,6 +19,7 @@ interface ProductCardProps {
 
 const ProductCard = ({ id, image, name, price, seller, sellerId, contactWhatsapp, index }: ProductCardProps) => {
   const { user } = useAuth();
+  const { t } = useSettings();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -27,7 +29,7 @@ const ProductCard = ({ id, image, name, price, seller, sellerId, contactWhatsapp
       return;
     }
     if (user.id === sellerId) {
-      toast({ title: "C'est votre propre produit" });
+      toast({ title: t("ownProduct") });
       return;
     }
 

@@ -30,10 +30,10 @@ const Settings = () => {
       await supabase.from("shops").delete().eq("user_id", user.id);
       await supabase.from("profiles").delete().eq("user_id", user.id);
       await signOut();
-      toast({ title: "Compte supprimé", description: "Vos données ont été supprimées." });
+      toast({ title: t("accountDeleted"), description: t("dataDeleted") });
       navigate("/");
     } catch (error: any) {
-      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+      toast({ title: t("error"), description: error.message, variant: "destructive" });
     } finally {
       setDeleting(false);
     }
@@ -48,7 +48,7 @@ const Settings = () => {
             onClick={() => navigate(-1)}
             className="flex items-center gap-1 text-muted-foreground hover:text-foreground mb-4"
           >
-            <ChevronLeft className="w-4 h-4" /> Retour
+            <ChevronLeft className="w-4 h-4" /> {t("back")}
           </button>
           <h1 className="font-heading font-bold text-3xl text-foreground mb-6">{t("settings")}</h1>
 
@@ -108,7 +108,7 @@ const Settings = () => {
               <Info className="w-5 h-5" /> {t("aboutDeveloper")}
             </h2>
             <p className="text-foreground font-medium">{t("developerName")}</p>
-            <p className="text-muted-foreground text-sm mt-1">Plateforme : Kassouata</p>
+            <p className="text-muted-foreground text-sm mt-1">{t("platform")}</p>
             <p className="text-muted-foreground text-sm mt-1">{t("vision")}</p>
           </section>
 
