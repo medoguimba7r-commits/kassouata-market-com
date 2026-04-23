@@ -2,12 +2,14 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSettings } from "@/contexts/SettingsContext";
 import { Store } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/Navbar";
 
 const CreateShop = () => {
   const { user } = useAuth();
+  const { t } = useSettings();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -26,10 +28,10 @@ const CreateShop = () => {
         description: description.trim() || null,
       });
       if (error) throw error;
-      toast({ title: "Boutique créée !", description: "Vous pouvez maintenant publier des produits." });
+      toast({ title: t("shopCreated"), description: t("canPublishNow") });
       navigate("/dashboard");
     } catch (error: any) {
-      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+      toast({ title: t("error"), description: error.message, variant: "destructive" });
     } finally {
       setSubmitting(false);
     }
@@ -44,29 +46,31 @@ const CreateShop = () => {
             <div className="w-16 h-16 rounded-full gradient-primary flex items-center justify-center mx-auto mb-4">
               <Store className="w-8 h-8 text-primary-foreground" />
             </div>
-            <h1 className="font-heading font-bold text-3xl text-foreground">Créer ma Boutique</h1>
-            <p className="text-muted-foreground mt-2">Donnez un nom à votre boutique pour commencer à vendre</p>
+            <h1 className="font-heading font-bold text-3xl text-foreground">{t("createMyShop")}</h1>
+            <p className="text-muted-foreground mt-2">{t("giveShopName")}</p>
           </div>
 
           <form onSubmit={handleSubmit} className="bg-card rounded-2xl border border-border p-6 space-y-4">
             <div>
-              <label className="block text-sm font-medium text-foreground mb-1.5">Nom de la boutique *</label>
+              <label className="block text-sm font-medium text-foreground mb-1.5">{t("shopName")} *</label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Ex: Boutique Amina"
+                placeholder={t("exShopName")}
                 required
                 maxLength={100}
                 className="w-full px-4 py-3 rounded-xl bg-background border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-foreground mb-1.5">Description (optionnel)</label>
+              <label className="block text-sm font-medium text-foreground mb-1.5">
+                {t("description")} ({t("optional")})
+              </label>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Décrivez votre boutique..."
+                placeholder={t("describeShop")}
                 rows={3}
                 maxLength={500}
                 className="w-full px-4 py-3 rounded-xl bg-background border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring resize-none"
@@ -77,7 +81,7 @@ const CreateShop = () => {
               disabled={submitting || !name.trim()}
               className="w-full gradient-primary py-3 rounded-xl font-heading font-semibold text-primary-foreground hover:opacity-90 transition-opacity disabled:opacity-50"
             >
-              {submitting ? "Création..." : "Créer ma boutique"}
+              {submitting ? t("creating") : t("createMyShop")}
             </button>
           </form>
         </div>
