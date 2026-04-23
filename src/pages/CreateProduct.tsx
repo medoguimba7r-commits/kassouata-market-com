@@ -2,19 +2,23 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { Camera, X, ImagePlus } from "lucide-react";
+import { useSettings } from "@/contexts/SettingsContext";
+import { Camera, X, ImagePlus, Tag } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/Navbar";
 import RichTextEditor from "@/components/RichTextEditor";
 import { useQuery } from "@tanstack/react-query";
+import { PRODUCT_CATEGORIES, getCategoryLabel, ProductCategory } from "@/lib/categories";
 
 const CreateProduct = () => {
   const { user } = useAuth();
+  const { t, language } = useSettings();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
+  const [category, setCategory] = useState<ProductCategory | "">("");
   const [contactWhatsapp, setContactWhatsapp] = useState("");
   const [contactPhone, setContactPhone] = useState("");
   const [images, setImages] = useState<File[]>([]);
@@ -41,12 +45,12 @@ const CreateProduct = () => {
         <Navbar />
         <main className="pt-20 pb-12">
           <div className="container text-center py-20">
-            <p className="text-muted-foreground mb-4">Vous devez d'abord créer une boutique.</p>
+            <p className="text-muted-foreground mb-4">{t("needCreateShopFirst")}</p>
             <button
               onClick={() => navigate("/create-shop")}
               className="gradient-primary px-6 py-3 rounded-xl font-heading font-semibold text-primary-foreground"
             >
-              Créer ma boutique
+              {t("createMyShop")}
             </button>
           </div>
         </main>
@@ -57,7 +61,7 @@ const CreateProduct = () => {
   const handleImageAdd = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (images.length + files.length > 5) {
-      toast({ title: "Maximum 5 photos", variant: "destructive" });
+      toast({ title: t("maxPhotos"), variant: "destructive" });
       return;
     }
     const newImages = [...images, ...files].slice(0, 5);
@@ -74,13 +78,16 @@ const CreateProduct = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || !shop || images.length === 0) {
-      toast({ title: "Ajoutez au moins une photo", variant: "destructive" });
+      toast({ title: t("addAtLeastPhoto"), variant: "destructive" });
+      return;
+    }
+    if (!category) {
+      toast({ title: t("selectCategory"), variant: "destructive" });
       return;
     }
     setSubmitting(true);
 
     try {
-      // Upload images
       const imageUrls: string[] = [];
       for (const file of images) {
         const ext = file.name.split(".").pop();
@@ -99,16 +106,17 @@ const CreateProduct = () => {
         name: name.trim(),
         description: description.trim() || null,
         price: price ? parseInt(price) : null,
+        category,
         images: imageUrls,
         contact_whatsapp: contactWhatsapp.trim() || null,
         contact_phone: contactPhone.trim() || null,
       });
       if (error) throw error;
 
-      toast({ title: "Produit publié !" });
+      toast({ title: t("productPublished") });
       navigate("/dashboard");
     } catch (error: any) {
-      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+      toast({ title: t("error"), description: error.message, variant: "destructive" });
     } finally {
       setSubmitting(false);
     }
@@ -119,13 +127,13 @@ const CreateProduct = () => {
       <Navbar />
       <main className="pt-20 pb-12">
         <div className="container max-w-lg">
-          <h1 className="font-heading font-bold text-3xl text-foreground mb-6">Publier un produit</h1>
+          <h1 className="font-heading font-bold text-3xl text-foreground mb-6">{t("publishProduct")}</h1>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Images */}
             <div className="bg-card rounded-2xl border border-border p-4">
               <label className="block text-sm font-medium text-foreground mb-3">
-                <Camera className="w-4 h-4 inline mr-1" /> Photos (1 à 5) *
+                <Camera className="w-4 h-4 inline mr-1" /> {t("photos")} *
               </label>
               <div className="grid grid-cols-3 gap-3">
                 {previews.map((src, i) => (
@@ -143,7 +151,7 @@ const CreateProduct = () => {
                 {images.length < 5 && (
                   <label className="aspect-square rounded-xl border-2 border-dashed border-border flex flex-col items-center justify-center cursor-pointer hover:bg-muted transition-colors">
                     <ImagePlus className="w-6 h-6 text-muted-foreground" />
-                    <span className="text-xs text-muted-foreground mt-1">Ajouter</span>
+                    <span className="text-xs text-muted-foreground mt-1">{t("addPhoto")}</span>
                     <input type="file" accept="image/*" onChange={handleImageAdd} className="hidden" multiple />
                   </label>
                 )}
@@ -153,35 +161,57 @@ const CreateProduct = () => {
             {/* Details */}
             <div className="bg-card rounded-2xl border border-border p-4 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1.5">Nom du produit *</label>
+                <label className="block text-sm font-medium text-foreground mb-1.5">{t("productName")} *</label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="Ex: Sac en cuir artisanal"
+                  placeholder={t("exProductName")}
                   required
                   maxLength={150}
                   className="w-full px-4 py-3 rounded-xl bg-background border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                 />
               </div>
+
+              {/* Category */}
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1.5">Description</label>
+                <label className="block text-sm font-medium text-foreground mb-1.5">
+                  <Tag className="w-4 h-4 inline mr-1" /> {t("category")} *
+                </label>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {PRODUCT_CATEGORIES.map((c) => (
+                    <button
+                      type="button"
+                      key={c}
+                      onClick={() => setCategory(c)}
+                      className={`px-3 py-2 rounded-xl text-sm font-medium border transition-colors ${
+                        category === c
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border text-muted-foreground hover:bg-muted"
+                      }`}
+                    >
+                      {getCategoryLabel(c, language)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1.5">{t("description")}</label>
                 <RichTextEditor
                   value={description}
                   onChange={setDescription}
-                  placeholder="Décrivez votre produit (couleur, police, gras, italique, barré, alignement...)"
+                  placeholder={t("describeProductRich")}
                 />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Mettez en forme votre texte : couleurs, polices, gras, italique, barré, alignement.
-                </p>
+                <p className="text-xs text-muted-foreground mt-1">{t("describeHelp")}</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1.5">Prix (FCFA) — optionnel</label>
+                <label className="block text-sm font-medium text-foreground mb-1.5">{t("priceFcfa")}</label>
                 <input
                   type="number"
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
-                  placeholder="Ex: 25000"
+                  placeholder={t("exPrice")}
                   min={0}
                   className="w-full px-4 py-3 rounded-xl bg-background border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                 />
@@ -190,29 +220,29 @@ const CreateProduct = () => {
 
             {/* Contact */}
             <div className="bg-card rounded-2xl border border-border p-4 space-y-4">
-              <label className="block text-sm font-medium text-foreground">Contact vendeur</label>
+              <label className="block text-sm font-medium text-foreground">{t("sellerContact")}</label>
               <input
                 type="text"
                 value={contactWhatsapp}
                 onChange={(e) => setContactWhatsapp(e.target.value)}
-                placeholder="Numéro WhatsApp"
+                placeholder={t("whatsappNumber")}
                 className="w-full px-4 py-3 rounded-xl bg-background border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
               />
               <input
                 type="text"
                 value={contactPhone}
                 onChange={(e) => setContactPhone(e.target.value)}
-                placeholder="Numéro téléphone"
+                placeholder={t("phoneNumber")}
                 className="w-full px-4 py-3 rounded-xl bg-background border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
               />
             </div>
 
             <button
               type="submit"
-              disabled={submitting || !name.trim() || images.length === 0}
+              disabled={submitting || !name.trim() || images.length === 0 || !category}
               className="w-full gradient-primary py-3 rounded-xl font-heading font-semibold text-primary-foreground hover:opacity-90 transition-opacity disabled:opacity-50"
             >
-              {submitting ? "Publication..." : "🚀 Publier le produit"}
+              {submitting ? t("publishing") : t("publishProductBtn")}
             </button>
           </form>
         </div>

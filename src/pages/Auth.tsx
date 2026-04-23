@@ -5,11 +5,13 @@ import { lovable } from "@/integrations/lovable";
 import { useAuth } from "@/contexts/AuthContext";
 import { Mail, Lock, User, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useSettings } from "@/contexts/SettingsContext";
 import logo from "@/assets/logo.png";
 import { Navigate } from "react-router-dom";
 
 const Auth = () => {
   const { user, loading } = useAuth();
+  const { t } = useSettings();
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -48,13 +50,13 @@ const Auth = () => {
         });
         if (error) throw error;
         toast({
-          title: "Compte créé !",
-          description: "Vérifiez votre email pour confirmer votre compte.",
+          title: t("accountCreated"),
+          description: t("checkEmailConfirm"),
         });
       }
     } catch (error: any) {
       toast({
-        title: "Erreur",
+        title: t("error"),
         description: error.message,
         variant: "destructive",
       });
@@ -70,20 +72,20 @@ const Auth = () => {
       });
       if (result?.error) {
         toast({
-          title: "Erreur Google",
+          title: t("error") + " Google",
           description: String(result.error),
           variant: "destructive",
         });
         return;
       }
       if (result?.redirected) {
-        return; // Le navigateur redirige vers Google
+        return;
       }
       navigate("/");
     } catch (e: any) {
       toast({
-        title: "Erreur",
-        description: e?.message ?? "Connexion Google impossible",
+        title: t("error"),
+        description: e?.message ?? "Google",
         variant: "destructive",
       });
     }
@@ -95,10 +97,10 @@ const Auth = () => {
         <div className="text-center mb-8">
           <img src={logo} alt="Kassouata" className="h-16 w-16 rounded-xl mx-auto mb-4" />
           <h1 className="font-heading font-bold text-3xl text-foreground">
-            Bienvenue sur <span className="text-gradient">Kassouata</span>
+            {t("welcomeOn")} <span className="text-gradient">Kassouata</span>
           </h1>
           <p className="text-muted-foreground mt-2">
-            {isLogin ? "Connectez-vous à votre compte" : "Créez votre compte vendeur"}
+            {isLogin ? t("signInToAccount") : t("createSellerAccount")}
           </p>
         </div>
 
@@ -113,7 +115,7 @@ const Auth = () => {
               <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
               <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
             </svg>
-            Continuer avec Google
+            {t("continueWithGoogle")}
           </button>
 
           <div className="relative my-4">
@@ -121,7 +123,7 @@ const Auth = () => {
               <div className="w-full border-t border-border" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-card px-2 text-muted-foreground">ou</span>
+              <span className="bg-card px-2 text-muted-foreground">{t("or")}</span>
             </div>
           </div>
 
@@ -131,7 +133,7 @@ const Auth = () => {
                 <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <input
                   type="text"
-                  placeholder="Nom complet"
+                  placeholder={t("fullName")}
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   required
@@ -143,7 +145,7 @@ const Auth = () => {
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <input
                 type="email"
-                placeholder="Email"
+                placeholder={t("email")}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -154,7 +156,7 @@ const Auth = () => {
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <input
                 type={showPassword ? "text" : "password"}
-                placeholder="Mot de passe"
+                placeholder={t("password")}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -175,17 +177,17 @@ const Auth = () => {
               disabled={submitting}
               className="w-full gradient-primary py-3 rounded-xl font-heading font-semibold text-primary-foreground hover:opacity-90 transition-opacity disabled:opacity-50"
             >
-              {submitting ? "Chargement..." : isLogin ? "Se connecter" : "Créer mon compte"}
+              {submitting ? t("loadingShort") : isLogin ? t("signIn") : t("createMyAccount")}
             </button>
           </form>
 
           <p className="text-center text-sm text-muted-foreground mt-4">
-            {isLogin ? "Pas encore de compte ?" : "Déjà un compte ?"}
+            {isLogin ? t("noAccountYet") : t("alreadyAccount")}
             <button
               onClick={() => setIsLogin(!isLogin)}
               className="text-primary font-medium ml-1 hover:underline"
             >
-              {isLogin ? "S'inscrire" : "Se connecter"}
+              {isLogin ? t("signUp") : t("signIn")}
             </button>
           </p>
         </div>
