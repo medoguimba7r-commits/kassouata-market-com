@@ -106,8 +106,8 @@ const Messages = () => {
               <div className="w-16 h-16 rounded-full gradient-primary flex items-center justify-center mx-auto mb-4">
                 <MessageCircle className="w-8 h-8 text-primary-foreground" />
               </div>
-              <h2 className="font-heading font-semibold text-xl text-foreground mb-2">Aucune conversation</h2>
-              <p className="text-muted-foreground">Contactez un vendeur sur le marketplace pour démarrer.</p>
+              <h2 className="font-heading font-semibold text-xl text-foreground mb-2">{t("noConversation")}</h2>
+              <p className="text-muted-foreground">{t("contactSellerStart")}</p>
             </div>
           </div>
         ) : (
@@ -115,7 +115,7 @@ const Messages = () => {
             {/* Conversation list */}
             <div className={`w-full md:w-80 border-r border-border overflow-y-auto ${selectedConvo ? "hidden md:block" : ""}`}>
               <div className="p-4">
-                <h1 className="font-heading font-bold text-xl text-foreground mb-4">Messages</h1>
+                <h1 className="font-heading font-bold text-xl text-foreground mb-4">{t("messages")}</h1>
                 <div className="space-y-1">
                   {conversations.map((convo) => (
                     <button
@@ -127,7 +127,7 @@ const Messages = () => {
                     >
                       <p className="font-medium text-foreground truncate">{getOtherParticipantName(convo)}</p>
                       <p className="text-xs text-muted-foreground mt-0.5">
-                        {new Date(convo.updated_at).toLocaleDateString("fr")}
+                        {new Date(convo.updated_at).toLocaleDateString(language)}
                       </p>
                     </button>
                   ))}
@@ -143,7 +143,7 @@ const Messages = () => {
                     onClick={() => setSelectedConvo(null)}
                     className="md:hidden text-sm text-primary"
                   >
-                    ← Retour
+                    ← {t("back")}
                   </button>
                   <h2 className="font-heading font-semibold text-foreground">
                     {getOtherParticipantName(conversations.find((c) => c.id === selectedConvo))}
@@ -164,7 +164,7 @@ const Messages = () => {
                       >
                         {msg.content}
                         <div className={`text-[10px] mt-1 ${msg.sender_id === user?.id ? "text-primary-foreground/60" : "text-muted-foreground"}`}>
-                          {new Date(msg.created_at).toLocaleTimeString("fr", { hour: "2-digit", minute: "2-digit" })}
+                          {new Date(msg.created_at).toLocaleTimeString(language, { hour: "2-digit", minute: "2-digit" })}
                         </div>
                       </div>
                     </div>
@@ -181,7 +181,7 @@ const Messages = () => {
                   <input
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
-                    placeholder="Écrire un message..."
+                    placeholder={t("writeMessage")}
                     className="flex-1 px-4 py-2.5 rounded-xl bg-muted border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                   />
                   <button
@@ -195,7 +195,7 @@ const Messages = () => {
               </div>
             ) : (
               <div className="hidden md:flex flex-1 items-center justify-center text-muted-foreground">
-                Sélectionnez une conversation
+                {t("selectConversation")}
               </div>
             )}
           </div>
