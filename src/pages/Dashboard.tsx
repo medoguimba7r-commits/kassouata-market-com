@@ -126,14 +126,23 @@ const Dashboard = () => {
       <Navbar />
       <main className="pt-20 pb-12">
         <div className="container">
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h1 className="font-heading font-bold text-3xl text-foreground">{shop.name}</h1>
-              <p className="text-muted-foreground mt-1">{shop.description || t("manageShop")}</p>
+          <div className="flex items-center justify-between gap-4 mb-8">
+            <div className="flex items-center gap-4 min-w-0">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden border border-border bg-muted flex items-center justify-center flex-shrink-0">
+                {shop.logo_url ? (
+                  <img src={shop.logo_url} alt={shop.name} className="w-full h-full object-cover" />
+                ) : (
+                  <Package className="w-8 h-8 text-muted-foreground" />
+                )}
+              </div>
+              <div className="min-w-0">
+                <h1 className="font-heading font-bold text-2xl sm:text-3xl text-foreground truncate">{shop.name}</h1>
+                <p className="text-muted-foreground mt-1 truncate">{shop.description || t("manageShop")}</p>
+              </div>
             </div>
             <button
               onClick={() => navigate("/create-product")}
-              className="gradient-primary px-5 py-2.5 rounded-xl font-heading font-semibold text-sm text-primary-foreground flex items-center gap-2 hover:opacity-90 transition-opacity"
+              className="gradient-primary px-5 py-2.5 rounded-xl font-heading font-semibold text-sm text-primary-foreground flex items-center gap-2 hover:opacity-90 transition-opacity flex-shrink-0"
             >
               <Plus className="w-4 h-4" />
               {t("add")}
