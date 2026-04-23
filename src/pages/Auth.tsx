@@ -5,11 +5,13 @@ import { lovable } from "@/integrations/lovable";
 import { useAuth } from "@/contexts/AuthContext";
 import { Mail, Lock, User, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useSettings } from "@/contexts/SettingsContext";
 import logo from "@/assets/logo.png";
 import { Navigate } from "react-router-dom";
 
 const Auth = () => {
   const { user, loading } = useAuth();
+  const { t } = useSettings();
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

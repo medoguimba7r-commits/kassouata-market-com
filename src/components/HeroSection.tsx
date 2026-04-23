@@ -1,19 +1,20 @@
 import { motion } from "framer-motion";
 import { ArrowRight, ShoppingBag, Users, TrendingUp } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useSettings } from "@/contexts/SettingsContext";
 import heroBg from "@/assets/hero-bg.jpg";
 import logo from "@/assets/logo.png";
 
-const stats = [
-  { icon: ShoppingBag, label: "Produits", value: "500+" },
-  { icon: Users, label: "Vendeurs", value: "100+" },
-  { icon: TrendingUp, label: "Ventes", value: "1K+" },
-];
-
 const HeroSection = () => {
+  const { t } = useSettings();
+  const stats = [
+    { icon: ShoppingBag, label: t("statProducts"), value: "500+" },
+    { icon: Users, label: t("statSellers"), value: "100+" },
+    { icon: TrendingUp, label: t("statSales"), value: "1K+" },
+  ];
+
   return (
     <section className="relative min-h-[85vh] flex items-center overflow-hidden">
-      {/* Background */}
       <div className="absolute inset-0">
         <img src={heroBg} alt="" className="w-full h-full object-cover" width={1920} height={1080} />
         <div className="absolute inset-0 bg-gradient-to-r from-foreground/90 via-foreground/70 to-foreground/40" />
@@ -29,7 +30,7 @@ const HeroSection = () => {
           >
             <img src={logo} alt="Kassouata" className="h-14 w-14 rounded-xl shadow-lg" />
             <span className="px-3 py-1 rounded-full bg-accent/20 text-accent text-sm font-medium border border-accent/30">
-              Le marketplace africain 🌍
+              {t("heroBadge")}
             </span>
           </motion.div>
 
@@ -39,9 +40,9 @@ const HeroSection = () => {
             transition={{ delay: 0.2, duration: 0.7 }}
             className="font-heading font-extrabold text-4xl md:text-6xl leading-tight text-background mb-6"
           >
-            Vendez & Achetez
+            {t("heroTitle1")}
             <br />
-            <span className="text-accent">en toute confiance</span>
+            <span className="text-accent">{t("heroTitle2")}</span>
           </motion.h1>
 
           <motion.p
@@ -50,8 +51,7 @@ const HeroSection = () => {
             transition={{ delay: 0.4, duration: 0.6 }}
             className="text-lg text-background/80 mb-8 max-w-lg"
           >
-            La plateforme de marketing digital pensée pour l'Afrique.
-            Créez votre boutique, publiez vos produits et connectez-vous avec vos clients.
+            {t("heroDesc")}
           </motion.p>
 
           <motion.div
@@ -64,18 +64,17 @@ const HeroSection = () => {
               to="/marketplace"
               className="gradient-primary px-6 py-3 rounded-xl font-heading font-semibold text-background flex items-center gap-2 hover:opacity-90 transition-opacity shadow-lg"
             >
-              Découvrir le Marketplace
+              {t("discoverMarketplace")}
               <ArrowRight className="w-4 h-4" />
             </Link>
             <Link
               to="/dashboard"
               className="px-6 py-3 rounded-xl font-heading font-semibold text-background border-2 border-background/30 hover:bg-background/10 transition-colors flex items-center gap-2"
             >
-              Ouvrir ma Boutique
+              {t("openShop")}
             </Link>
           </motion.div>
 
-          {/* Stats */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
