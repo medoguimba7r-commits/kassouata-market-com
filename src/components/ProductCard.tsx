@@ -14,7 +14,6 @@ interface ProductCardProps {
   price?: string;
   seller: string;
   sellerId: string;
-  contactWhatsapp?: string | null;
   index: number;
 }
 
@@ -23,7 +22,7 @@ const stripHtml = (html: string): string => {
   return html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
 };
 
-const ProductCard = ({ id, image, name, description, price, seller, sellerId, contactWhatsapp, index }: ProductCardProps) => {
+const ProductCard = ({ id, image, name, description, price, seller, sellerId, index }: ProductCardProps) => {
   const { user } = useAuth();
   const { t } = useSettings();
   const navigate = useNavigate();
@@ -39,10 +38,20 @@ const ProductCard = ({ id, image, name, description, price, seller, sellerId, co
       return;
     }
 
-    // If WhatsApp is available, open it
-    if (contactWhatsapp) {
-      window.open(`https://wa.me/${contactWhatsapp}`, "_blank");
-      return;
+    // Lazily fetch WhatsApp contact (only authenticated users can read it via RLS).
+    try {
+      const { data: productRow } = await supabase
+        .from("products")
+        .select("contact_whatsapp")
+        .eq("id", id)
+        .maybeSingle();
+
+      if (productRow?.contact_whatsapp) {
+        window.open(`https://wa.me/${productRow.contact_whatsapp}`, "_blank");
+        return;
+      }
+    } catch {
+      // Fall through to conversation flow if contact lookup fails.
     }
 
     // Otherwise create/find conversation
