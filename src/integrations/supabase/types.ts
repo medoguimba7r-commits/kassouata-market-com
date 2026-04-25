@@ -47,6 +47,13 @@ export type Database = {
             referencedRelation: "products"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "conversations_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       messages: {
@@ -208,6 +215,59 @@ export type Database = {
       }
     }
     Views: {
+      products_public: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          description: string | null
+          id: string | null
+          images: string[] | null
+          is_published: boolean | null
+          name: string | null
+          price: number | null
+          shop_id: string | null
+          updated_at: string | null
+          user_id: string | null
+          views_count: number | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string | null
+          images?: string[] | null
+          is_published?: boolean | null
+          name?: string | null
+          price?: number | null
+          shop_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          views_count?: number | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string | null
+          images?: string[] | null
+          is_published?: boolean | null
+          name?: string | null
+          price?: number | null
+          shop_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          views_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       public_profiles: {
         Row: {
           avatar_url: string | null
