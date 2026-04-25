@@ -16,9 +16,8 @@ const Index = () => {
     queryKey: ["home-products"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("products")
+        .from("products_public")
         .select("*, shops(name)")
-        .eq("is_published", true)
         .order("created_at", { ascending: false })
         .limit(24);
       if (error) throw error;
@@ -56,15 +55,14 @@ const Index = () => {
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
               {filtered.map((p, i) => (
                 <ProductCard
-                  key={p.id}
-                  id={p.id}
-                  image={p.images[0] || ""}
-                  name={p.name}
+                  key={p.id!}
+                  id={p.id!}
+                  image={p.images?.[0] || ""}
+                  name={p.name ?? ""}
                   description={p.description}
                   price={p.price ? `${p.price.toLocaleString()} FCFA` : undefined}
-                  seller={p.shops?.name || "Vendeur"}
-                  sellerId={p.user_id}
-                  contactWhatsapp={p.contact_whatsapp}
+                  seller={(p as any).shops?.name || "Vendeur"}
+                  sellerId={p.user_id!}
                   index={i}
                 />
               ))}
