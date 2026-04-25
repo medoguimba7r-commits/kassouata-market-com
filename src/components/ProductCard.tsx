@@ -10,6 +10,7 @@ interface ProductCardProps {
   id: string;
   image: string;
   name: string;
+  description?: string | null;
   price?: string;
   seller: string;
   sellerId: string;
@@ -17,7 +18,12 @@ interface ProductCardProps {
   index: number;
 }
 
-const ProductCard = ({ id, image, name, price, seller, sellerId, contactWhatsapp, index }: ProductCardProps) => {
+// Strip HTML tags from rich text description for safe preview display
+const stripHtml = (html: string): string => {
+  return html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+};
+
+const ProductCard = ({ id, image, name, description, price, seller, sellerId, contactWhatsapp, index }: ProductCardProps) => {
   const { user } = useAuth();
   const { t } = useSettings();
   const navigate = useNavigate();
@@ -93,7 +99,12 @@ const ProductCard = ({ id, image, name, price, seller, sellerId, contactWhatsapp
       <div className="p-4">
         <h3 className="font-heading font-semibold text-card-foreground truncate">{name}</h3>
         {price && <p className="text-secondary font-bold mt-1">{price}</p>}
-        <p className="text-sm text-muted-foreground mt-1">{seller}</p>
+        {description && (
+          <p className="text-xs text-muted-foreground mt-1.5 line-clamp-2 leading-relaxed">
+            {stripHtml(description)}
+          </p>
+        )}
+        <p className="text-xs text-muted-foreground/80 mt-1.5 italic truncate">{seller}</p>
         <div className="flex gap-2 mt-3">
           <button
             onClick={handleContact}
