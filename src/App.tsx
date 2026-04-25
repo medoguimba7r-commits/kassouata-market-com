@@ -68,6 +68,14 @@ const App = () => (
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/edit-product/:id"
+              element={
+                <ProtectedRoute>
+                  <CreateProduct />
+                </ProtectedRoute>
+              }
+            />
             <Route path="/settings" element={<Settings />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -177,6 +177,12 @@ const translations = {
   publishing: { fr: "Publication...", en: "Publishing...", ar: "جار النشر..." },
   publishProductBtn: { fr: "🚀 Publier le produit", en: "🚀 Publish the product", ar: "🚀 انشر المنتج" },
   productPublished: { fr: "Produit publié !", en: "Product published!", ar: "تم نشر المنتج!" },
+  editProduct: { fr: "Modifier le produit", en: "Edit product", ar: "تعديل المنتج" },
+  saveChanges: { fr: "💾 Enregistrer les modifications", en: "💾 Save changes", ar: "💾 حفظ التغييرات" },
+  saving: { fr: "Enregistrement...", en: "Saving...", ar: "جاري الحفظ..." },
+  productUpdated: { fr: "Produit mis à jour !", en: "Product updated!", ar: "تم تحديث المنتج!" },
+  edit: { fr: "Modifier", en: "Edit", ar: "تعديل" },
+  productNotFound: { fr: "Produit introuvable", en: "Product not found", ar: "المنتج غير موجود" },
 
   // Product card
   contact: { fr: "Contacter", en: "Contact", ar: "اتصال" },

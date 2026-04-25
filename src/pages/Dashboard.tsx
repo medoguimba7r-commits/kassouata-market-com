@@ -1,5 +1,5 @@
 import Navbar from "@/components/Navbar";
-import { Plus, Package, Eye, MessageCircle, TrendingUp, Trash2, ToggleLeft, ToggleRight } from "lucide-react";
+import { Plus, Package, Eye, MessageCircle, TrendingUp, Trash2, ToggleLeft, ToggleRight, Pencil } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSettings } from "@/contexts/SettingsContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -196,6 +196,13 @@ const Dashboard = () => {
                     </p>
                   </div>
                   <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => navigate(`/edit-product/${product.id}`)}
+                      className="p-2 rounded-lg hover:bg-muted transition-colors text-primary"
+                      title={t("edit")}
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </button>
                     <button
                       onClick={() => togglePublishMutation.mutate({ id: product.id, published: !product.is_published })}
                       className="p-2 rounded-lg hover:bg-muted transition-colors"
