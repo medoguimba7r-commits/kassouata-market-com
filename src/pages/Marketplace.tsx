@@ -71,6 +71,7 @@ const Marketplace = () => {
                   id={p.id}
                   image={p.images[0] || ""}
                   name={p.name}
+                  description={p.description}
                   price={p.price ? `${p.price.toLocaleString()} FCFA` : undefined}
                   seller={p.shops?.name || "Vendeur"}
                   sellerId={p.user_id}
