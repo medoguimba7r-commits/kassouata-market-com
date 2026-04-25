@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSettings } from "@/contexts/SettingsContext";
@@ -8,22 +8,27 @@ import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/Navbar";
 import RichTextEditor from "@/components/RichTextEditor";
 import { useQuery } from "@tanstack/react-query";
-import { PRODUCT_CATEGORIES, getCategoryLabel, ProductCategory } from "@/lib/categories";
+import { PRODUCT_CATEGORIES, ProductCategory, getCategoryLabel } from "@/lib/categories";
 
 const CreateProduct = () => {
   const { user } = useAuth();
   const { t, language } = useSettings();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { id: editId } = useParams<{ id: string }>();
+  const isEdit = Boolean(editId);
+
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [category, setCategory] = useState<ProductCategory | "">("");
   const [contactWhatsapp, setContactWhatsapp] = useState("");
   const [contactPhone, setContactPhone] = useState("");
-  const [images, setImages] = useState<File[]>([]);
-  const [previews, setPreviews] = useState<string[]>([]);
+  const [newImages, setNewImages] = useState<File[]>([]);
+  const [newPreviews, setNewPreviews] = useState<string[]>([]);
+  const [existingImages, setExistingImages] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
+  const [loadingProduct, setLoadingProduct] = useState(isEdit);
 
   const { data: shop } = useQuery({
     queryKey: ["my-shop", user?.id],
@@ -39,7 +44,37 @@ const CreateProduct = () => {
     enabled: !!user,
   });
 
-  if (!shop) {
+  // Load existing product when editing
+  useEffect(() => {
+    const loadProduct = async () => {
+      if (!isEdit || !editId || !user) return;
+      const { data, error } = await supabase
+        .from("products")
+        .select("*")
+        .eq("id", editId)
+        .maybeSingle();
+      if (error || !data) {
+        toast({ title: t("productNotFound"), variant: "destructive" });
+        navigate("/dashboard");
+        return;
+      }
+      if (data.user_id !== user.id) {
+        navigate("/dashboard");
+        return;
+      }
+      setName(data.name);
+      setDescription(data.description || "");
+      setPrice(data.price ? String(data.price) : "");
+      setCategory((data.category as ProductCategory) || "");
+      setContactWhatsapp(data.contact_whatsapp || "");
+      setContactPhone(data.contact_phone || "");
+      setExistingImages(data.images || []);
+      setLoadingProduct(false);
+    };
+    loadProduct();
+  }, [isEdit, editId, user, navigate, toast, t]);
+
+  if (!shop && !isEdit) {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
@@ -58,26 +93,44 @@ const CreateProduct = () => {
     );
   }
 
+  if (loadingProduct) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <main className="pt-20 pb-12 flex items-center justify-center">
+          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+        </main>
+      </div>
+    );
+  }
+
+  const totalImagesCount = existingImages.length + newImages.length;
+
   const handleImageAdd = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    if (images.length + files.length > 5) {
+    if (totalImagesCount + files.length > 5) {
       toast({ title: t("maxPhotos"), variant: "destructive" });
       return;
     }
-    const newImages = [...images, ...files].slice(0, 5);
-    setImages(newImages);
-    setPreviews(newImages.map((f) => URL.createObjectURL(f)));
+    const updated = [...newImages, ...files].slice(0, 5 - existingImages.length);
+    setNewImages(updated);
+    setNewPreviews(updated.map((f) => URL.createObjectURL(f)));
   };
 
-  const removeImage = (index: number) => {
-    const newImages = images.filter((_, i) => i !== index);
-    setImages(newImages);
-    setPreviews(newImages.map((f) => URL.createObjectURL(f)));
+  const removeNewImage = (index: number) => {
+    const updated = newImages.filter((_, i) => i !== index);
+    setNewImages(updated);
+    setNewPreviews(updated.map((f) => URL.createObjectURL(f)));
+  };
+
+  const removeExistingImage = (index: number) => {
+    setExistingImages(existingImages.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || !shop || images.length === 0) {
+    if (!user) return;
+    if (totalImagesCount === 0) {
       toast({ title: t("addAtLeastPhoto"), variant: "destructive" });
       return;
     }
@@ -88,8 +141,9 @@ const CreateProduct = () => {
     setSubmitting(true);
 
     try {
-      const imageUrls: string[] = [];
-      for (const file of images) {
+      // Upload any new images
+      const uploadedUrls: string[] = [];
+      for (const file of newImages) {
         const ext = file.name.split(".").pop();
         const path = `${user.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
         const { error: uploadError } = await supabase.storage
@@ -97,23 +151,43 @@ const CreateProduct = () => {
           .upload(path, file);
         if (uploadError) throw uploadError;
         const { data: urlData } = supabase.storage.from("product-images").getPublicUrl(path);
-        imageUrls.push(urlData.publicUrl);
+        uploadedUrls.push(urlData.publicUrl);
       }
 
-      const { error } = await supabase.from("products").insert({
-        shop_id: shop.id,
-        user_id: user.id,
-        name: name.trim(),
-        description: description.trim() || null,
-        price: price ? parseInt(price) : null,
-        category,
-        images: imageUrls,
-        contact_whatsapp: contactWhatsapp.trim() || null,
-        contact_phone: contactPhone.trim() || null,
-      });
-      if (error) throw error;
+      const finalImages = [...existingImages, ...uploadedUrls];
 
-      toast({ title: t("productPublished") });
+      if (isEdit && editId) {
+        const { error } = await supabase
+          .from("products")
+          .update({
+            name: name.trim(),
+            description: description.trim() || null,
+            price: price ? parseInt(price) : null,
+            category,
+            images: finalImages,
+            contact_whatsapp: contactWhatsapp.trim() || null,
+            contact_phone: contactPhone.trim() || null,
+          })
+          .eq("id", editId);
+        if (error) throw error;
+        toast({ title: t("productUpdated") });
+      } else {
+        if (!shop) throw new Error("Shop required");
+        const { error } = await supabase.from("products").insert({
+          shop_id: shop.id,
+          user_id: user.id,
+          name: name.trim(),
+          description: description.trim() || null,
+          price: price ? parseInt(price) : null,
+          category,
+          images: finalImages,
+          contact_whatsapp: contactWhatsapp.trim() || null,
+          contact_phone: contactPhone.trim() || null,
+        });
+        if (error) throw error;
+        toast({ title: t("productPublished") });
+      }
+
       navigate("/dashboard");
     } catch (error: any) {
       toast({ title: t("error"), description: error.message, variant: "destructive" });
@@ -127,7 +201,9 @@ const CreateProduct = () => {
       <Navbar />
       <main className="pt-20 pb-12">
         <div className="container max-w-lg">
-          <h1 className="font-heading font-bold text-3xl text-foreground mb-6">{t("publishProduct")}</h1>
+          <h1 className="font-heading font-bold text-3xl text-foreground mb-6">
+            {isEdit ? t("editProduct") : t("publishProduct")}
+          </h1>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Images */}
@@ -136,19 +212,31 @@ const CreateProduct = () => {
                 <Camera className="w-4 h-4 inline mr-1" /> {t("photos")} *
               </label>
               <div className="grid grid-cols-3 gap-3">
-                {previews.map((src, i) => (
-                  <div key={i} className="relative aspect-square rounded-xl overflow-hidden border border-border">
+                {existingImages.map((src, i) => (
+                  <div key={`existing-${i}`} className="relative aspect-square rounded-xl overflow-hidden border border-border">
                     <img src={src} alt="" className="w-full h-full object-cover" />
                     <button
                       type="button"
-                      onClick={() => removeImage(i)}
+                      onClick={() => removeExistingImage(i)}
                       className="absolute top-1 right-1 p-1 rounded-full bg-destructive text-destructive-foreground"
                     >
                       <X className="w-3 h-3" />
                     </button>
                   </div>
                 ))}
-                {images.length < 5 && (
+                {newPreviews.map((src, i) => (
+                  <div key={`new-${i}`} className="relative aspect-square rounded-xl overflow-hidden border border-border">
+                    <img src={src} alt="" className="w-full h-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => removeNewImage(i)}
+                      className="absolute top-1 right-1 p-1 rounded-full bg-destructive text-destructive-foreground"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+                {totalImagesCount < 5 && (
                   <label className="aspect-square rounded-xl border-2 border-dashed border-border flex flex-col items-center justify-center cursor-pointer hover:bg-muted transition-colors">
                     <ImagePlus className="w-6 h-6 text-muted-foreground" />
                     <span className="text-xs text-muted-foreground mt-1">{t("addPhoto")}</span>
@@ -239,10 +327,16 @@ const CreateProduct = () => {
 
             <button
               type="submit"
-              disabled={submitting || !name.trim() || images.length === 0 || !category}
+              disabled={submitting || !name.trim() || totalImagesCount === 0 || !category}
               className="w-full gradient-primary py-3 rounded-xl font-heading font-semibold text-primary-foreground hover:opacity-90 transition-opacity disabled:opacity-50"
             >
-              {submitting ? t("publishing") : t("publishProductBtn")}
+              {submitting
+                ? isEdit
+                  ? t("saving")
+                  : t("publishing")
+                : isEdit
+                  ? t("saveChanges")
+                  : t("publishProductBtn")}
             </button>
           </form>
         </div>
