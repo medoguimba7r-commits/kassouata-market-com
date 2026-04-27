@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 interface ProductCardProps {
   id: string;
   image: string;
+  images?: string[];
   name: string;
   description?: string | null;
   price?: string;
@@ -17,12 +18,75 @@ interface ProductCardProps {
   index: number;
 }
 
+// Mosaic layout for up to 5 images, separated by very subtle (almost invisible) gaps.
+const ImageMosaic = ({ images, name }: { images: string[]; name: string }) => {
+  const imgs = images.slice(0, 5);
+  const count = imgs.length;
+
+  // Tiny gap acts as the "invisible" separator line between tiles.
+  const gap = "gap-[1px] bg-border/30";
+  const imgClass = "w-full h-full object-cover";
+
+  if (count <= 1) {
+    return (
+      <img
+        src={imgs[0]}
+        alt={name}
+        loading="lazy"
+        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+      />
+    );
+  }
+
+  if (count === 2) {
+    return (
+      <div className={`grid grid-cols-2 w-full h-full ${gap}`}>
+        {imgs.map((src, i) => (
+          <img key={i} src={src} alt={`${name} ${i + 1}`} loading="lazy" className={imgClass} />
+        ))}
+      </div>
+    );
+  }
+
+  if (count === 3) {
+    return (
+      <div className={`grid grid-cols-2 grid-rows-2 w-full h-full ${gap}`}>
+        <img src={imgs[0]} alt={`${name} 1`} loading="lazy" className={`${imgClass} row-span-2`} />
+        <img src={imgs[1]} alt={`${name} 2`} loading="lazy" className={imgClass} />
+        <img src={imgs[2]} alt={`${name} 3`} loading="lazy" className={imgClass} />
+      </div>
+    );
+  }
+
+  if (count === 4) {
+    return (
+      <div className={`grid grid-cols-2 grid-rows-2 w-full h-full ${gap}`}>
+        {imgs.map((src, i) => (
+          <img key={i} src={src} alt={`${name} ${i + 1}`} loading="lazy" className={imgClass} />
+        ))}
+      </div>
+    );
+  }
+
+  // 5 images: 1 large left, 4 small stacked on right (2x2)
+  return (
+    <div className={`grid grid-cols-3 grid-rows-2 w-full h-full ${gap}`}>
+      <img src={imgs[0]} alt={`${name} 1`} loading="lazy" className={`${imgClass} col-span-2 row-span-2`} />
+      <img src={imgs[1]} alt={`${name} 2`} loading="lazy" className={imgClass} />
+      <img src={imgs[2]} alt={`${name} 3`} loading="lazy" className={imgClass} />
+      <img src={imgs[3]} alt={`${name} 4`} loading="lazy" className={imgClass} />
+      <img src={imgs[4]} alt={`${name} 5`} loading="lazy" className={imgClass} />
+    </div>
+  );
+};
+
 // Strip HTML tags from rich text description for safe preview display
 const stripHtml = (html: string): string => {
   return html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
 };
 
-const ProductCard = ({ id, image, name, description, price, seller, sellerId, index }: ProductCardProps) => {
+const ProductCard = ({ id, image, images, name, description, price, seller, sellerId, index }: ProductCardProps) => {
+  const allImages = (images && images.length > 0) ? images : (image ? [image] : []);
   const { user } = useAuth();
   const { t } = useSettings();
   const navigate = useNavigate();
@@ -88,16 +152,11 @@ const ProductCard = ({ id, image, name, description, price, seller, sellerId, in
       transition={{ delay: index * 0.1, duration: 0.5 }}
       className="group bg-card rounded-xl overflow-hidden border border-border hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
     >
-      <div className="relative aspect-square overflow-hidden">
-        {image ? (
-          <img
-            src={image}
-            alt={name}
-            loading="lazy"
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-          />
+      <div className="relative aspect-square overflow-hidden bg-muted">
+        {allImages.length > 0 ? (
+          <ImageMosaic images={allImages} name={name} />
         ) : (
-          <div className="w-full h-full bg-muted flex items-center justify-center">
+          <div className="w-full h-full flex items-center justify-center">
             <Store className="w-8 h-8 text-muted-foreground" />
           </div>
         )}
