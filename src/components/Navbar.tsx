@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { Menu, X, Search, MessageCircle, Store, User, LogOut, LogIn, Settings as SettingsIcon } from "lucide-react";
+import { Menu, X, Search, MessageCircle, Store, User, LogOut, LogIn, Settings as SettingsIcon, Shield } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSettings } from "@/contexts/SettingsContext";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 import logo from "@/assets/logo.png";
 
 const Navbar = () => {
@@ -11,6 +12,7 @@ const Navbar = () => {
   const location = useLocation();
   const { user, signOut } = useAuth();
   const { t } = useSettings();
+  const { isAdmin } = useIsAdmin();
 
   const navItems = [
     { to: "/", label: t("home"), icon: Store },
@@ -21,6 +23,7 @@ const Navbar = () => {
           { to: "/dashboard", label: t("myShop"), icon: User },
         ]
       : []),
+    ...(isAdmin ? [{ to: "/admin", label: "Admin", icon: Shield }] : []),
     { to: "/settings", label: t("settings"), icon: SettingsIcon },
   ];
 
