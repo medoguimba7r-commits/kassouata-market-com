@@ -17,7 +17,7 @@ const Index = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("products_public")
-        .select("*, shops(name)")
+        .select("*, shops(id, name, logo_url)")
         .order("created_at", { ascending: false })
         .limit(24);
       if (error) throw error;
@@ -64,6 +64,8 @@ const Index = () => {
                   price={p.price ? `${p.price.toLocaleString()} FCFA` : undefined}
                   seller={(p as any).shops?.name || "Vendeur"}
                   sellerId={p.user_id!}
+                  shopId={(p as any).shop_id || (p as any).shops?.id}
+                  shopLogoUrl={(p as any).shops?.logo_url}
                   index={i}
                 />
               ))}
